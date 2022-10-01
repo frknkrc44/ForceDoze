@@ -154,4 +154,6 @@
 
     <string name="notification_channel_tips_name">Informations</string>
     <string name="notification_channel_tips_description">Informations about compatibility problems</string>
+
+    <string name="permissions_not_granted">These permissions are required for this app, please enable them.</string>
 </resources>

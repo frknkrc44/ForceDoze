@@ -20,8 +20,11 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -296,7 +299,7 @@ public class ForceDozeService extends Service {
                 Intent notificationIntent = new Intent();
                 notificationIntent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
                 PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), 0,
-                        notificationIntent, 0);
+                        notificationIntent, PendingIntent.FLAG_IMMUTABLE);
                 Notification n = new NotificationCompat.Builder(this, CHANNEL_TIPS)
                         .setContentTitle("ForceDoze")
                         .setStyle(new NotificationCompat.BigTextStyle().bigText("ForceDoze needs to be added to the Doze whitelist in order to work reliably. Please click on this notification to open the battery optimisation view, click on 'ForceDoze' and select 'Don\'t' Optimize'"))
@@ -488,75 +491,63 @@ public class ForceDozeService extends Service {
     }
 
     public void executeCommand(final String command) {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (nonRootSession != null) {
-                    nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                        @Override
-                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                            printShellOutput(output);
-                        }
-                    });
-                } else {
-                    nonRootSession = new Shell.Builder().
-                            useSH().
-                            setWantSTDERR(true).
-                            setWatchdogTimeout(5).
-                            setMinimalLogging(true).
-                            open(new Shell.OnCommandResultListener() {
-                                @Override
-                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                    if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                        Log.i(TAG, "Error opening shell: exitCode " + exitCode);
-                                    } else {
-                                        nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                            @Override
-                                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                printShellOutput(output);
-                                            }
-                                        });
+        AsyncTask.execute(() -> {
+            if (nonRootSession != null) {
+                nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                    @Override
+                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                        printShellOutput(output);
+                    }
+                });
+            } else {
+                nonRootSession = new Shell.Builder().
+                        useSH().
+                        setWantSTDERR(true).
+                        setWatchdogTimeout(5).
+                        setMinimalLogging(true).
+                        open((success, reason) -> {
+                            if (!success) {
+                                Log.i(TAG, "Error opening shell: reason " + reason);
+                            } else {
+                                nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                    @Override
+                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                        printShellOutput(output);
                                     }
-                                }
-                            });
-                }
+                                });
+                            }
+                        });
             }
         });
     }
 
     public void executeCommandWithRoot(final String command) {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (rootSession != null) {
-                    rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                        @Override
-                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                            printShellOutput(output);
-                        }
-                    });
-                } else {
-                    rootSession = new Shell.Builder().
-                            useSU().
-                            setWantSTDERR(true).
-                            setWatchdogTimeout(5).
-                            setMinimalLogging(true).
-                            open(new Shell.OnCommandResultListener() {
-                                @Override
-                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                    if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                        Log.i(TAG, "Error opening root shell: exitCode " + exitCode);
-                                    } else {
-                                        rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                            @Override
-                                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                printShellOutput(output);
-                                            }
-                                        });
+        AsyncTask.execute(() -> {
+            if (rootSession != null) {
+                rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                    @Override
+                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                        printShellOutput(output);
+                    }
+                });
+            } else {
+                rootSession = new Shell.Builder().
+                        useSU().
+                        setWantSTDERR(true).
+                        setWatchdogTimeout(5).
+                        setMinimalLogging(true).
+                        open((success, reason) -> {
+                            if (!success) {
+                                Log.i(TAG, "Error opening root shell: reason " + reason);
+                            } else {
+                                rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                    @Override
+                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                        printShellOutput(output);
                                     }
-                                }
-                            });
-                }
+                                });
+                            }
+                        });
             }
         });
     }
@@ -615,7 +606,7 @@ public class ForceDozeService extends Service {
         Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), 0,
-                notificationIntent, 0);
+                notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification n = mStatsBuilder
                 .setStyle(
                         new NotificationCompat.BigTextStyle()
@@ -632,7 +623,7 @@ public class ForceDozeService extends Service {
         Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), 0,
-                notificationIntent, 0);
+                notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification n = mStatsBuilder
                 .setStyle(
                         new NotificationCompat.BigTextStyle()

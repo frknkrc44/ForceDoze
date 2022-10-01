@@ -14,9 +14,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -454,81 +454,69 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         public void executeCommandWithRoot(final String command) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (rootSession != null) {
-                        rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                            @Override
-                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                printShellOutput(output);
-                            }
-                        });
-                    } else {
-                        rootSession = new Shell.Builder().
-                                useSU().
-                                setWantSTDERR(true).
-                                setWatchdogTimeout(5).
-                                setMinimalLogging(true).
-                                open(new Shell.OnCommandResultListener() {
-                                    @Override
-                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                        if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                            Log.i(TAG, "Error opening root shell: exitCode " + exitCode);
-                                            isSuAvailable = false;
-                                            toggleRootFeatures(false);
-                                        } else {
-                                            rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                                @Override
-                                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                    isSuAvailable = true;
-                                                    toggleRootFeatures(true);
-                                                    printShellOutput(output);
-                                                }
-                                            });
+            AsyncTask.execute(() -> {
+                if (rootSession != null) {
+                    rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                        @Override
+                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                            printShellOutput(output);
+                        }
+                    });
+                } else {
+                    rootSession = new Shell.Builder().
+                            useSU().
+                            setWantSTDERR(true).
+                            setWatchdogTimeout(5).
+                            setMinimalLogging(true).
+                            open((success, reason) -> {
+                                if (!success) {
+                                    Log.i(TAG, "Error opening root shell: reason " + reason);
+                                    isSuAvailable = false;
+                                    toggleRootFeatures(false);
+                                } else {
+                                    rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                        @Override
+                                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                            isSuAvailable = true;
+                                            toggleRootFeatures(true);
+                                            printShellOutput(output);
                                         }
-                                    }
-                                });
-                    }
+                                    });
+                                }
+                            });
                 }
             });
         }
 
         public void executeCommandWithoutRoot(final String command) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (nonRootSession != null) {
-                        nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                            @Override
-                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                printShellOutput(output);
-                            }
-                        });
-                    } else {
-                        nonRootSession = new Shell.Builder().
-                                useSH().
-                                setWantSTDERR(true).
-                                setWatchdogTimeout(5).
-                                setMinimalLogging(true).
-                                open(new Shell.OnCommandResultListener() {
-                                    @Override
-                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                        if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                            Log.i(TAG, "Error opening shell: exitCode " + exitCode);
+            AsyncTask.execute(() -> {
+                if (nonRootSession != null) {
+                    nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                        @Override
+                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                            printShellOutput(output);
+                        }
+                    });
+                } else {
+                    nonRootSession = new Shell.Builder().
+                            useSH().
+                            setWantSTDERR(true).
+                            setWatchdogTimeout(5).
+                            setMinimalLogging(true).
+                            open((success, reason) -> {
+                                if (!success) {
+                                    Log.i(TAG, "Error opening shell: reason " + reason);
+                                    isSuAvailable = false;
+                                } else {
+                                    nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                        @Override
+                                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                            printShellOutput(output);
                                             isSuAvailable = false;
-                                        } else {
-                                            nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                                @Override
-                                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                    printShellOutput(output);
-                                                    isSuAvailable = false;
-                                                }
-                                            });
                                         }
-                                    }
-                                });
-                    }
+                                    });
+                                }
+                            });
                 }
             });
         }

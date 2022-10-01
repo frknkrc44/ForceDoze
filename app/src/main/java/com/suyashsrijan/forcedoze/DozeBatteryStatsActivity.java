@@ -7,13 +7,14 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.dexafree.materialList.card.Card;
@@ -90,7 +91,7 @@ public class DozeBatteryStatsActivity extends AppCompatActivity {
                     if (enter_data[2].equals("ENTER") && exit_data[2].equals("EXIT")) {
                         Card card = new Card.Builder(this)
                                 .withProvider(new CardProvider())
-                                .setLayout(R.layout.material_small_image_card)
+                                .setLayout(com.dexafree.materialList.R.layout.material_small_image_card)
                                 .setTitle("Doze Session")
                                 .setDrawable(returnDrawableBattery(Float.valueOf(enter_data[1]).intValue() - Float.valueOf(exit_data[1]).intValue()))
                                 .setDescription("Start Time: " + Utils.getDateCurrentTimeZone(Long.valueOf(enter_data[0])) +
@@ -104,7 +105,7 @@ public class DozeBatteryStatsActivity extends AppCompatActivity {
                     } else if (enter_data[2].equals("ENTER_MAINTENANCE") && exit_data[2].equals("EXIT_MAINTENANCE")) {
                         Card card = new Card.Builder(this)
                                 .withProvider(new CardProvider())
-                                .setLayout(R.layout.material_small_image_card)
+                                .setLayout(com.dexafree.materialList.R.layout.material_small_image_card)
                                 .setTitle("Doze Session (Maintenance)")
                                 .setDrawable(returnDrawableBattery(Float.valueOf(enter_data[1]).intValue() - Float.valueOf(exit_data[1]).intValue()))
                                 .setDescription("Start Time: " + Utils.getDateCurrentTimeZone(Long.valueOf(enter_data[0])) +

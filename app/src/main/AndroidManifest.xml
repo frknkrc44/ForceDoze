@@ -5,11 +5,16 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.READ_LOGS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <uses-permission
         android:name="android.permission.DUMP"
         tools:ignore="ProtectedPermissions" />
@@ -24,7 +29,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:exported="true"
+            android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -36,12 +43,16 @@
             <meta-data android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
-        <receiver android:name=".BootCompleteReceiver">
+        <receiver
+            android:exported="true"
+            android:name=".BootCompleteReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".AutoRestartOnUpdate">
+        <receiver
+            android:exported="true"
+            android:name=".AutoRestartOnUpdate">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
 
@@ -49,6 +60,7 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:exported="false"
             android:name=".EnableForceDozeService"
             android:enabled="true">
             <intent-filter>
@@ -56,6 +68,7 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:exported="false"
             android:name=".DisableForceDozeService"
             android:enabled="true">
             <intent-filter>
@@ -63,6 +76,7 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:exported="false"
             android:name=".AddWhiteListReceiver"
             android:enabled="true">
             <intent-filter>
@@ -70,6 +84,7 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:exported="false"
             android:name=".RemoveWhiteListReceiver"
             android:enabled="true">
             <intent-filter>
@@ -77,6 +92,7 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:exported="false"
             android:name=".SettingsChangeReceiver"
             android:enabled="true">
             <intent-filter>
@@ -86,12 +102,13 @@
         <receiver
             android:name=".ReenterDoze"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name=".ForceDozeService"
             android:enabled="true"
             android:exported="false" />
         <service
+            android:exported="true"
             android:name=".ForceDozeTileService"
             android:icon="@drawable/ic_power_settings_new_white_24dp"
             android:label="@string/tile_label"

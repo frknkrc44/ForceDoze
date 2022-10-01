@@ -1,15 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.suyashsrijan.forcedoze"
         minSdkVersion 23
-        targetSdkVersion 27
-        versionCode 68
-        versionName "1.4.0"
+        targetSdkVersion 33
+        versionCode 70
+        versionName "2.0.0"
     }
     buildTypes {
         release {
@@ -19,22 +18,19 @@ android {
     }
 }
 
-ext.supportLibraryVersion = '27.1.1'
-
-configurations.all {
-    exclude group: 'com.android.support', module: 'support-v13'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation ('com.afollestad.material-dialogs:core:0.9.3.0') {
         transitive = true
     }
-    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
-    implementation "com.android.support:design:$supportLibraryVersion"
-    implementation "com.android.support:customtabs:$supportLibraryVersion"
-    implementation "com.android.support:support-v4:$supportLibraryVersion"
-    implementation 'eu.chainfire:libsuperuser:1.0.0.+'
+    implementation 'androidx.core:core:1.9.0'
+    implementation "androidx.appcompat:appcompat:1.5.1"
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.browser:browser:1.4.0'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "com.google.android.material:material:1.6.1"
+    implementation 'eu.chainfire:libsuperuser:1.1.0'
     implementation 'com.fabiendevos:nanotasks:1.1.0'
     implementation 'com.jakewharton:process-phoenix:1.0.2'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'

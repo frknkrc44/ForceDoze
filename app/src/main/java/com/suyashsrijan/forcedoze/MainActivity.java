@@ -1,5 +1,6 @@
 package com.suyashsrijan.forcedoze;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,27 +8,34 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.service.quicksettings.TileService;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.nanotasks.BackgroundWork;
 import com.nanotasks.Completion;
 import com.nanotasks.Tasks;
@@ -36,6 +44,7 @@ import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 import eu.chainfire.libsuperuser.Shell;
+import eu.chainfire.libsuperuser.StreamGobbler;
 
 public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
@@ -65,6 +74,30 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String permPhone = "android.permission.READ_PHONE_STATE";
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if(!notificationManager.areNotificationsEnabled() || ContextCompat.checkSelfPermission(
+                            this, permPhone) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS", permPhone}, 1);
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (!isGranted) {
+                        Toast.makeText(this, R.string.permissions_not_granted, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } else if(ContextCompat.checkSelfPermission(
+                this, permPhone) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{ permPhone }, 1);
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (!isGranted) {
+                    Toast.makeText(this, R.string.permissions_not_granted, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setElevation(0.0f);
         }
@@ -535,16 +568,26 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
 
 
-    private final Shell.OnCommandResultListener mOpenListener = new Shell.OnCommandResultListener() {
+    private final Shell.OnShellOpenResultListener mOpenListener = new Shell.OnShellOpenResultListener() {
         @Override
-        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-            mStdoutListener.onCommandResult(commandCode, exitCode);
+        public void onOpenResult(boolean success, int reason) {
+            mStdoutListener.onCommandResult(reason, reason);
         }
     };
 
     private final Shell.OnCommandLineListener mStdoutListener = new Shell.OnCommandLineListener() {
         public void onLine(String line) {
             Log.i(TAG, line);
+        }
+
+        @Override
+        public void onSTDERR(String line) {
+            onLine(line);
+        }
+
+        @Override
+        public void onSTDOUT(String line) {
+            onLine(line);
         }
 
         @Override
@@ -557,15 +600,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
     };
 
-    private final Shell.OnCommandLineListener mStderrListener = new Shell.OnCommandLineListener() {
+    private final StreamGobbler.OnLineListener mStderrListener = new StreamGobbler.OnLineListener() {
         @Override
         public void onLine(String line) {
             Log.i(TAG, line);
-        }
-
-        @Override
-        public void onCommandResult(int commandCode, int exitCode) {
-
         }
     };
 
@@ -615,75 +653,63 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     public void executeCommandWithRoot(final String command) {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (rootSession != null) {
-                    rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                        @Override
-                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                            printShellOutput(output);
-                        }
-                    });
-                } else {
-                    rootSession = new Shell.Builder().
-                            useSU().
-                            setWantSTDERR(true).
-                            setWatchdogTimeout(5).
-                            setMinimalLogging(true).
-                            open(new Shell.OnCommandResultListener() {
-                                @Override
-                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                    if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                        Log.i(TAG, "Error opening root shell: exitCode " + exitCode);
-                                    } else {
-                                        rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                            @Override
-                                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                printShellOutput(output);
-                                            }
-                                        });
+        AsyncTask.execute(() -> {
+            if (rootSession != null) {
+                rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                    @Override
+                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                        printShellOutput(output);
+                    }
+                });
+            } else {
+                rootSession = new Shell.Builder().
+                        useSU().
+                        setWantSTDERR(true).
+                        setWatchdogTimeout(5).
+                        setMinimalLogging(true).
+                        open((success, reason) -> {
+                            if (!success) {
+                                Log.i(TAG, "Error opening root shell: reason " + reason);
+                            } else {
+                                rootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                    @Override
+                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                        printShellOutput(output);
                                     }
-                                }
-                            });
-                }
+                                });
+                            }
+                        });
             }
         });
     }
 
     public void executeCommandWithoutRoot(final String command) {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (nonRootSession != null) {
-                    nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                        @Override
-                        public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                            printShellOutput(output);
-                        }
-                    });
-                } else {
-                    nonRootSession = new Shell.Builder().
-                            useSH().
-                            setWantSTDERR(true).
-                            setWatchdogTimeout(5).
-                            setMinimalLogging(true).
-                            open(new Shell.OnCommandResultListener() {
-                                @Override
-                                public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                    if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                                        Log.i(TAG, "Error opening shell: exitCode " + exitCode);
-                                    } else {
-                                        nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
-                                            @Override
-                                            public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                                                printShellOutput(output);
-                                            }
-                                        });
+        AsyncTask.execute(() -> {
+            if (nonRootSession != null) {
+                nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                    @Override
+                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                        printShellOutput(output);
+                    }
+                });
+            } else {
+                nonRootSession = new Shell.Builder().
+                        useSH().
+                        setWantSTDERR(true).
+                        setWatchdogTimeout(5).
+                        setMinimalLogging(true).
+                        open((success, reason) -> {
+                            if (!success) {
+                                Log.i(TAG, "Error opening shell: reason " + reason);
+                            } else {
+                                nonRootSession.addCommand(command, 0, new Shell.OnCommandResultListener() {
+                                    @Override
+                                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                                        printShellOutput(output);
                                     }
-                                }
-                            });
-                }
+                                });
+                            }
+                        });
             }
         });
     }
