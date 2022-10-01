@@ -1,5 +1,7 @@
 package com.suyashsrijan.forcedoze;
 
+import static android.content.Context.BATTERY_SERVICE;
+
 import android.Manifest;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
@@ -24,8 +26,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static android.content.Context.BATTERY_SERVICE;
 
 public class Utils {
 

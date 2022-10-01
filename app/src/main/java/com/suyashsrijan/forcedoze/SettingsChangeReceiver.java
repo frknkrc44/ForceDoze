@@ -3,8 +3,9 @@ package com.suyashsrijan.forcedoze;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class SettingsChangeReceiver extends BroadcastReceiver {
 

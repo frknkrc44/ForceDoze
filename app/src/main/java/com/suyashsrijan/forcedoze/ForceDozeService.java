@@ -1,5 +1,7 @@
 package com.suyashsrijan.forcedoze;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -20,15 +22,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -41,8 +41,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import eu.chainfire.libsuperuser.Shell;
-
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class ForceDozeService extends Service {
 
