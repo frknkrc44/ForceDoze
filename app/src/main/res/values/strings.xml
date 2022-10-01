@@ -28,9 +28,9 @@
     <string name="how_doze_works_dialog_text">How Doze mode works on your device:\n\nIf a user leaves a device unplugged and stationary for a period of time (30 mins), with the screen off, the device enters Doze mode. In Doze mode, the system attempts to conserve battery by restricting apps\' access to network and CPU-intensive services. It also prevents apps from accessing the network and defers their jobs, syncs, and standard alarms\n\nPeriodically, the system exits Doze for a brief time to let apps complete their deferred activities. During this maintenance window, the system runs all pending syncs, jobs, and alarms, and lets apps access the network\n\nAt the conclusion of each maintenance window, the system again enters Doze, suspending network access and deferring jobs, syncs, and alarms. Over time, the system schedules maintenance windows less and less frequently, helping to reduce battery consumption in cases of longer-term inactivity when the device is not connected to a charger.\n\nAs soon as the user wakes the device by moving it, turning on the screen, or connecting a charger, the system exits Doze and all apps return to normal activity\n\nHow ForceDoze works:\n\nForceDoze makes the device enter Doze mode immediately after screen off (or after a user specified delay), instead of waiting for 30 mins for the device to become stationary. On top of that, ForceDoze also turns of the device\'s motion sensors, so Doze doesn\'t deactivate if you move your device. Doze will only deactivate during a maintenance window (as explained above) or when you turn on your screen, which means your device will stay in Doze mode for a much longer time even if the device\'s screen is off and the device is not stationary, which means the battery savings will be a lot higher than normal Doze.</string>
     <string name="error_text">Error</string>
     <string name="please_wait_text">Please wait</string>
-    <string name="requesting_su_access_text">Requesting SU access...</string>
+    <string name="requesting_su_access_text">Requesting SU access…</string>
     <string name="read_logcat_su_not_avail_or_denied_error_text">SU permission denied or SU not available, so cannot read logcat.\n\nPlease grant READ_LOGS permission via ADB to use this feature: \'adb shell pm grant com.suyashsrijan.forcedoze android.permission.READ_LOGS\' (without quotes)</string>
-    <string name="loading_installed_apps_text">Loading installed apps...</string>
+    <string name="loading_installed_apps_text">Loading installed apps…</string>
     <string name="whitelisting_text">Whitelisting</string>
     <string name="whitelisted_apps_restrictions_text">"An app that is whitelisted can use the network and hold partial wake locks during Doze and App Standby. However, other restrictions still apply to the whitelisted app, just as they do to other apps. For example, the whitelisted app’s jobs and syncs are deferred, and its regular AlarmManager alarms do not fire. "</string>
     <string name="info_text">Info</string>
@@ -78,8 +78,8 @@
     <string name="donate_dialog_button_text">I want to donate</string>
     <string name="about_forcedoze_setting_title">About ForceDoze</string>
     <string name="about_app_opensrc_text">ForceDoze for Android is built using open source software:</string>
-    <string name="version_num_text">1.4.0 rev 68</string>
-    <string name="loading_whitelisted_packages">Loading whitelisted packages...</string>
+    <string name="version_num_text">2.0.0 rev 1</string>
+    <string name="loading_whitelisted_packages">Loading whitelisted packages…</string>
     <string name="translation_credits_dialog_title">Translation credits</string>
     <string name="translation_credits_dialog_text">Thanks to the following people for translating ForceDoze into other languages: \n\nSpanish: monza1412 (XDA)\nPortuguese-BR: GamerVicioX (GitHub)\nRussian: HardSer (GitHub)\nGerman: okij (XDA)\nChinese (Traditional): osk2 (GitHub)\nTurkish: Shepards (XDA)</string>
     <string name="su_perm_denied_msg">SU permission denied or not available!</string>
@@ -118,7 +118,7 @@
     <string name="battery_optimization_menu_item">Battery optimization</string>
     <string name="doze_stats_battery_icon_meaning_dialog_title">What do the icons mean?</string>
     <string name="doze_stats_battery_icon_meaning_dialog_text">The battery icon with a lightning sign indicates the battery usage during that Doze session was within acceptable limits, and the battery icon with an exclamation sign indicates the battery usage during that Doze session was above acceptable limits. If the battery usage in any Doze session is above acceptable limits, you are advised to look into GSAM or another third party battery stats app to investigate what drained your battery</string>
-    <string name="clearing_doze_stats_text">Clearing Doze stats...</string>
+    <string name="clearing_doze_stats_text">Clearing Doze stats…</string>
     <string name="tile_label">ForceDoze</string>
     <string name="notif_blocklist_setting_summary">Prevent notifications from being delivered during Doze</string>
     <string name="notif_blocklist_setting_title">Doze notification blocklist</string>

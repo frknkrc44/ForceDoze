@@ -3,7 +3,6 @@
     android:id="@+id/rrl_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#232937"
     android:fitsSystemWindows="true">
 
     <androidx.drawerlayout.widget.DrawerLayout
@@ -28,8 +27,7 @@
                 android:fontFamily="sans-serif-light"
                 android:text="ForceDoze for\nAndroid"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="36sp"
-                android:textColor="#ffffff" />
+                android:textSize="36sp" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -41,7 +39,6 @@
                 android:layout_marginTop="38dp"
                 android:text="Version"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#9BA0AA"
                 android:textStyle="normal|bold" />
 
             <TextView
@@ -54,8 +51,7 @@
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/version_num_text"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#586174" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -68,7 +64,6 @@
                 android:text="licenses"
                 android:onClick="showLicences"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#9BA0AA"
                 android:textStyle="bold" />
 
             <TextView
@@ -82,7 +77,6 @@
                 android:singleLine="false"
                 android:text="@string/about_app_opensrc_text"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#9BA0AA"
                 android:layout_below="@+id/textView4"
                 android:layout_alignStart="@+id/textView4" />
 
@@ -94,7 +88,6 @@
                 android:text="translations"
                 android:onClick="showTranslationCreditsDialog"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#9BA0AA"
                 android:textStyle="bold"
                 android:layout_below="@+id/textView5"
                 android:layout_alignStart="@+id/textView5" />
@@ -107,7 +100,6 @@
                 android:text="sign up for beta testing"
                 android:onClick="signUpBeta"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#9BA0AA"
                 android:textStyle="bold"
                 android:layout_below="@+id/textView7"
                 android:layout_alignStart="@+id/textView7" />
@@ -120,7 +112,6 @@
                 android:text="privacy policy"
                 android:onClick="showPrivacyPolicy"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#9BA0AA"
                 android:textStyle="bold"
                 android:layout_below="@+id/textView8"
                 android:layout_alignStart="@+id/textView8" />
